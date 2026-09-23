@@ -1,0 +1,30 @@
+name: Validate product
+on: [push, pull_request]
+permissions:
+  contents: read
+jobs:
+  python:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-python@v6
+        with:
+          python-version: '3.12'
+      - run: pip install .
+      - run: python -m unittest discover -s tests -v
+      - run: python -m compileall -q src cloud notebooks
+      - run: insurance-rag --db demo.db ingest data/synthetic_claims.json --expected-count 6 --batch-id ci
+      - run: insurance-rag --db demo.db query "flood claims"
+  terraform:
+    runs-on: ubuntu-24.04
+    defaults:
+      run:
+        working-directory: terraform
+    steps:
+      - uses: actions/checkout@v6
+      - uses: hashicorp/setup-terraform@v4
+        with:
+          terraform_version: '1.9.8'
+      - run: terraform fmt -check -recursive
+      - run: terraform init -backend=false
+      - run: terraform validate
