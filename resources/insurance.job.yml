@@ -1,0 +1,38 @@
+resources:
+  jobs:
+    index:
+      name: ${bundle.name}-${bundle.target}-index
+      max_concurrent_runs: 1
+      queue:
+        enabled: true
+      parameters:
+        - name: batch_id
+          default: '{{job.run_id}}'
+      tasks:
+        - task_key: refresh_pipeline
+          pipeline_task:
+            pipeline_id: ${resources.pipelines.insurance_pipeline.id}
+            full_refresh: false
+          timeout_seconds: 7200
+        - task_key: embed
+          depends_on:
+            - task_key: refresh_pipeline
+          existing_cluster_id: ${var.cluster_id}
+          timeout_seconds: 7200
+          max_retries: 2
+          min_retry_interval_millis: 60000
+          libraries:
+            - whl: ../dist/*.whl
+            - pypi:
+                package: boto3>=1.35,<2
+            - pypi:
+                package: psycopg[binary]>=3.2,<4
+            - pypi:
+                package: pgvector>=0.3,<1
+          notebook_task:
+            notebook_path: ../notebooks/02_generate_embeddings.py
+            base_parameters:
+              chunk_table: ${var.catalog}.${var.schema}.claims_rag_chunks
+              batch_id: '{{job.parameters.batch_id}}'
+              secret_scope: ${var.secret_scope}
+              vector_secret_key: ${var.vector_secret_key}

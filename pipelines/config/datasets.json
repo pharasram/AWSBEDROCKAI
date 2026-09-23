@@ -1,0 +1,26 @@
+{
+  "datasets": [
+    {
+      "name": "claims",
+      "source_subpath": "claims",
+      "source_code": "insurance",
+      "keys": ["claim_id"],
+      "sequence_column": "updated_at",
+      "fields": {
+        "claim_id": "string",
+        "policy_id": "string",
+        "product": "string",
+        "status": "string",
+        "loss_type": "string",
+        "amount": "decimal(18,2)",
+        "currency": "string",
+        "updated_at": "timestamp"
+      },
+      "required": ["claim_id", "policy_id", "product", "status", "loss_type", "currency"],
+      "products": ["motor", "home", "travel"],
+      "statuses": ["open", "review", "settled"],
+      "loss_types": ["collision", "theft", "flood", "fire", "baggage delay"],
+      "currencies": ["INR", "USD", "GBP", "EUR"]
+    }
+  ]
+}

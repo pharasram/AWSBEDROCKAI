@@ -45,13 +45,14 @@ class VectorStore:
         from .core import document
         with self.conn:
             self.conn.execute("""INSERT INTO rag_documents
-                (source_id, product, content, embedding, updated_at, batch_id)
-                VALUES (%s,%s,%s,%s::vector,%s,%s)
+                (source_id, product, content, embedding, updated_at, batch_id, source_order_key)
+                VALUES (%s,%s,%s,%s::vector,%s,%s,%s)
                 ON CONFLICT(source_id) DO UPDATE SET product=excluded.product, content=excluded.content,
-                embedding=excluded.embedding, updated_at=excluded.updated_at, batch_id=excluded.batch_id
+                embedding=excluded.embedding, updated_at=excluded.updated_at, batch_id=excluded.batch_id,
+                source_order_key=excluded.source_order_key
                 WHERE excluded.updated_at > rag_documents.updated_at
-                OR (excluded.updated_at = rag_documents.updated_at AND excluded.content >= rag_documents.content)""",
-                (row["claim_id"], row["product"], document(row), embedding, row["updated_at"], batch_id))
+                OR (excluded.updated_at = rag_documents.updated_at AND excluded.source_order_key >= rag_documents.source_order_key)""",
+                (row["claim_id"], row["product"], document(row), embedding, row["updated_at"], batch_id, row["row_hash_key"]))
 
     def search(self, embedding, product, k=5):
         if not 1 <= k <= 10:

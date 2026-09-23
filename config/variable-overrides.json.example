@@ -1,0 +1,9 @@
+{
+  "catalog": "your_dev_catalog",
+  "schema": "insurance_rag_yourname",
+  "landing_path": "s3://your-approved-bucket/insurance/dev",
+  "cluster_id": "your-embedding-cluster-id",
+  "secret_scope": "insurance-rag-dev",
+  "vector_secret_key": "postgres-dsn",
+  "deployer_sp": "unused-in-dev"
+}

@@ -1,4 +1,6 @@
 # Databricks notebook source
+# LEGACY EXAMPLE ONLY: the deployed job now uses pipelines/transformations/insurance.py.
+# Do not run this notebook against pipeline-owned materialized views or streaming tables.
 # Install the built insurance_rag wheel as a job library.
 from pyspark.sql import functions as F
 from pyspark.sql.window import Window

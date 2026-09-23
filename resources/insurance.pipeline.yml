@@ -1,0 +1,21 @@
+resources:
+  pipelines:
+    insurance_pipeline:
+      name: ${bundle.name}-${bundle.target}-declarative
+      catalog: ${var.catalog}
+      schema: ${var.schema}
+      serverless: true
+      continuous: false
+      channel: CURRENT
+      edition: ADVANCED
+      root_path: ../pipelines
+      libraries:
+        - glob:
+            include: ../pipelines/transformations/**
+      configuration:
+        insurance.landing_path: ${var.landing_path}
+        spark.sql.session.timeZone: UTC
+      event_log:
+        catalog: ${var.catalog}
+        schema: ${var.schema}
+        name: insurance_pipeline_events

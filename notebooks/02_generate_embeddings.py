@@ -1,7 +1,6 @@
 # Databricks notebook source
 from insurance_rag.cloud import Bedrock, VectorStore
 from insurance_rag.core import document
-from pyspark.sql import functions as F
 
 for name in ("chunk_table", "batch_id", "secret_scope", "vector_secret_key"):
     dbutils.widgets.text(name, "")
@@ -12,7 +11,9 @@ count = 0
 try:
     # Streams rows to the driver without collect(); bounded reference implementation.
     # For large estates, partition this workload with rate limiting and a durable work queue.
-    rows = spark.table(chunk_table).where(F.col("batch_id") == batch_id).dropDuplicates(["claim_id"])
+    # The preceding pipeline task publishes the current materialized snapshot.
+    # batch_id is an audit identifier, not a filter on this current-state table.
+    rows = spark.table(chunk_table)
     for record in rows.toLocalIterator():
         row = record.asDict()
         row["updated_at"] = row["updated_at"].isoformat() if hasattr(row["updated_at"], "isoformat") else row["updated_at"]
