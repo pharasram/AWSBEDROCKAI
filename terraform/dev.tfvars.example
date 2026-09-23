@@ -1,0 +1,4 @@
+region                = "us-east-1"
+stage_bucket          = "replace-with-existing-stage-bucket"
+databricks_job_id      = "123"
+databricks_secret_arn  = "arn:aws:secretsmanager:us-east-1:123456789012:secret:databricks-example"

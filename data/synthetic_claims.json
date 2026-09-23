@@ -1,0 +1,8 @@
+[
+  {"claim_id":"CLM-1001","policy_id":"POL-001","product":"motor","status":"open","loss_type":"collision","amount":12500,"currency":"INR","updated_at":"2026-09-01T10:00:00Z"},
+  {"claim_id":"CLM-1002","policy_id":"POL-002","product":"home","status":"settled","loss_type":"flood","amount":84000,"currency":"INR","updated_at":"2026-09-02T10:00:00Z"},
+  {"claim_id":"CLM-1003","policy_id":"POL-003","product":"travel","status":"review","loss_type":"baggage delay","amount":6500,"currency":"INR","updated_at":"2026-09-03T10:00:00Z"},
+  {"claim_id":"CLM-1004","policy_id":"POL-004","product":"motor","status":"settled","loss_type":"theft","amount":210000,"currency":"INR","updated_at":"2026-09-04T10:00:00Z"},
+  {"claim_id":"CLM-1001","policy_id":"POL-001","product":"motor","status":"review","loss_type":"collision","amount":12500,"currency":"INR","updated_at":"2026-09-05T10:00:00Z"},
+  {"claim_id":"CLM-1005","policy_id":"POL-005","product":"home","status":"open","loss_type":"fire","amount":320000,"currency":"INR","updated_at":"2026-09-06T10:00:00Z"}
+]

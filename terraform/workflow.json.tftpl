@@ -1,0 +1,23 @@
+{
+  "Comment": "Stage completion starts RAG indexing; poll every 15 minutes",
+  "StartAt": "Start",
+  "TimeoutSeconds": 86400,
+  "States": {
+    "Start": {"Type":"Task","Resource":"${lambda_arn}","Next":"Wait",
+      "Retry":[{"ErrorEquals":["States.TaskFailed"],"IntervalSeconds":10,"MaxAttempts":3,"BackoffRate":2}],
+      "Catch":[{"ErrorEquals":["States.ALL"],"Next":"NotifyFailure","ResultPath":"$.error"}]},
+    "Wait": {"Type":"Wait","Seconds":900,"Next":"Poll"},
+    "Poll": {"Type":"Task","Resource":"${lambda_arn}",
+      "Parameters":{"action":"poll","batch_id.$":"$.batch_id","run_id.$":"$.run_id"},"Next":"Status",
+      "Retry":[{"ErrorEquals":["States.TaskFailed"],"IntervalSeconds":10,"MaxAttempts":3,"BackoffRate":2}],
+      "Catch":[{"ErrorEquals":["States.ALL"],"Next":"NotifyFailure","ResultPath":"$.error"}]},
+    "Status": {"Type":"Choice","Choices":[
+      {"Variable":"$.status","StringEquals":"SUCCEEDED","Next":"NotifySuccess"},
+      {"Variable":"$.status","StringEquals":"FAILED","Next":"NotifyFailure"}],"Default":"Wait"},
+    "NotifySuccess": {"Type":"Task","Resource":"arn:aws:states:::sns:publish",
+      "Parameters":{"TopicArn":"${topic_arn}","Message":"Insurance RAG indexing succeeded. Inspect the workflow execution and audit table for batch details."},"End":true},
+    "NotifyFailure": {"Type":"Task","Resource":"arn:aws:states:::sns:publish",
+      "Parameters":{"TopicArn":"${topic_arn}","Message":"Insurance RAG indexing failed. Inspect the workflow execution and audit table."},"Next":"Failed"},
+    "Failed": {"Type":"Fail","Error":"RagIndexingFailed"}
+  }
+}

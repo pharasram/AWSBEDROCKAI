@@ -1,0 +1,60 @@
+bundle:
+  name: insurance-rag
+variables:
+  cluster_id:
+    description: Existing cluster with instance profile granting Bedrock access
+  stage_table:
+    description: Approved Unity Catalog stage table
+  chunk_table:
+    description: Unity Catalog Delta table for batch chunks
+  secret_scope:
+    description: Existing restricted secret scope
+  vector_secret_key:
+    description: Existing pgvector DSN secret key
+artifacts:
+  default:
+    type: whl
+    build: python -m pip wheel --no-deps . -w dist
+    path: .
+resources:
+  jobs:
+    index:
+      name: insurance-rag-index
+      max_concurrent_runs: 1
+      parameters:
+        - name: batch_id
+          default: manual-run
+      tasks:
+        - task_key: chunk
+          existing_cluster_id: ${var.cluster_id}
+          notebook_task:
+            notebook_path: ./notebooks/01_chunk_delta_data.py
+            base_parameters:
+              stage_table: ${var.stage_table}
+              chunk_table: ${var.chunk_table}
+              batch_id: '{{job.parameters.batch_id}}'
+        - task_key: embed
+          depends_on:
+            - task_key: chunk
+          existing_cluster_id: ${var.cluster_id}
+          libraries:
+            - whl: ./dist/*.whl
+            - pypi:
+                package: boto3>=1.35,<2
+            - pypi:
+                package: psycopg[binary]>=3.2,<4
+            - pypi:
+                package: pgvector>=0.3,<1
+          notebook_task:
+            notebook_path: ./notebooks/02_generate_embeddings.py
+            base_parameters:
+              chunk_table: ${var.chunk_table}
+              batch_id: '{{job.parameters.batch_id}}'
+              secret_scope: ${var.secret_scope}
+              vector_secret_key: ${var.vector_secret_key}
+targets:
+  dev:
+    default: true
+    mode: development
+  prod:
+    mode: production

@@ -1,0 +1,20 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "rag-insurance-pipeline"
+version = "0.1.0"
+description = "Insurance data quality and grounded retrieval over staged Delta data"
+requires-python = ">=3.11"
+dependencies = []
+
+[project.optional-dependencies]
+cloud = ["boto3>=1.35,<2", "psycopg[binary]>=3.2,<4", "pgvector>=0.3,<1"]
+tracking = ["mlflow>=2.17,<4"]
+
+[project.scripts]
+insurance-rag = "insurance_rag.cli:main"
+
+[tool.setuptools.packages.find]
+where = ["src"]
